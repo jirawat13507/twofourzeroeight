@@ -10,6 +10,7 @@ namespace twozerofoureight
     {
         protected int boardSize; // default is 4
         protected int[,] board;
+        protected int[,] TableCheck = new int[6, 6];
         protected Random rand;
 
         public TwoZeroFourEightModel() : this(4)
@@ -30,6 +31,7 @@ namespace twozerofoureight
             rand = new Random();
             board = Random(board);
             NotifyAll();
+            if (CheckFull() == 16) CheckEndGame();
         }
 
         public int[,] GetBoard()
@@ -39,7 +41,7 @@ namespace twozerofoureight
 
         private int[,] Random(int[,] input)
         {
-            while (true)
+            while (CheckFull() < 16)
             {
                 int x = rand.Next(boardSize);
                 int y = rand.Next(boardSize);
@@ -103,6 +105,7 @@ namespace twozerofoureight
             }
             board = Random(board);
             NotifyAll();
+            if (CheckFull() == 16) CheckEndGame();
         }
 
         public void PerformUp()
@@ -155,6 +158,7 @@ namespace twozerofoureight
             }
             board = Random(board);
             NotifyAll();
+            if (CheckFull() == 16) CheckEndGame();
         }
 
         public void PerformRight()
@@ -209,6 +213,7 @@ namespace twozerofoureight
             }
             board = Random(board);
             NotifyAll();
+            if (CheckFull() == 16) CheckEndGame();
         }
 
         public void PerformLeft()
@@ -259,6 +264,74 @@ namespace twozerofoureight
             }
             board = Random(board);
             NotifyAll();
+            if (CheckFull() == 16) CheckEndGame();
+        }
+        public int CheckFull()
+        {
+            isFull = 0;
+            for (int x = 0; x < 4; x++)
+            {
+                for (int y = 0; y < 4; y++)
+                {
+                    if (board[x, y] > 0)
+                    {
+                        isFull++;
+                    }
+                }
+            }
+            return isFull;
+        }
+        public void CheckEndGame()
+        {
+            bool[] status = new bool[16];
+            int count = 0;
+            for (int w = 0; w < 16; w++)
+            {
+                status[w] = true;
+            }
+            for (int x = 0; x < 6; x++)
+            {
+                for (int y = 0; y < 6; y++)
+                {
+                    if (x == 0 || y == 0 || x == 5 || y == 5)
+                    {
+                        TableCheck[x, y] = 0;
+                    }
+                    else
+                    {
+                        TableCheck[x, y] = board[x - 1, y - 1];
+                    }
+                    //Console.Write(var[x, y] + " ");
+                }
+                //Console.WriteLine();
+            }
+            for (int x = 1; x < 5; x++)
+            {
+                for (int y = 1; y < 5; y++)
+                {
+                    if (TableCheck[x, y] != TableCheck[x - 1, y] && TableCheck[x, y] != TableCheck[x + 1, y] && TableCheck[x, y] != TableCheck[x, y - 1] && TableCheck[x, y] != TableCheck[x, y + 1])
+                    {
+                        status[count] = false;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                    count++;
+                }
+            }
+            for (int x = 0; x < 16; x++)
+            {
+                if (status[x])
+                {
+                    isEnd = false;
+                    break;
+                }
+                else if (x == 15 && !status[15])
+                {
+                    isEnd = true;
+                }
+            }
         }
     }
 }
